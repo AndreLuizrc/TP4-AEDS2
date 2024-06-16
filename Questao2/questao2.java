@@ -1,5 +1,6 @@
-package Questao1;
+package Questao2;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -15,19 +16,35 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 //Classes Arvore Binaria
-
-class No{
+class No2{
     public Personagem personagem;
-    public No esq,dir;
+    public No2 esq,dir;
 
-    public No(){
+    public No2(){
         this(null);
     }
 
-    public No(Personagem personagem) {
+    public No2(Personagem personagem) {
         this.personagem = personagem;
         this.esq = null;
         this.dir = null;
+    }
+}
+
+class No{
+    public int elemento;
+    public No esq,dir;
+    public No2 subArvore;
+
+    public No(){
+        this(0);
+    }
+
+    public No(int elemento) {
+        this.elemento = elemento;
+        this.esq = null;
+        this.dir = null;
+        this.subArvore = null;
     }
 }
 
@@ -35,23 +52,37 @@ class ArvoreBinaria{
     private No raiz;
 
     public ArvoreBinaria() {
-        raiz = null;
+        try {
+            raiz = inserirArvorePrincipal(7, raiz);
+            raiz = inserirArvorePrincipal(3, raiz);
+            raiz = inserirArvorePrincipal(11, raiz);
+            raiz = inserirArvorePrincipal(1, raiz);
+            raiz = inserirArvorePrincipal(5, raiz);
+            raiz = inserirArvorePrincipal(9, raiz);
+            raiz = inserirArvorePrincipal(13, raiz);
+            raiz = inserirArvorePrincipal(0, raiz);
+            raiz = inserirArvorePrincipal(2, raiz);
+            raiz = inserirArvorePrincipal(4, raiz);
+            raiz = inserirArvorePrincipal(6, raiz);
+            raiz = inserirArvorePrincipal(8, raiz);
+            raiz = inserirArvorePrincipal(10, raiz);
+            raiz = inserirArvorePrincipal(12, raiz);
+            raiz = inserirArvorePrincipal(14, raiz);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void inserir(Personagem personagem) throws Exception{
-        raiz = inserir(raiz, personagem);
-    }
-
-    private No inserir(No i, Personagem personagem) throws Exception{
+    private No inserirArvorePrincipal(int x, No i) throws Exception{
 
         if(i == null){
-            i = new No(personagem);
-        }else if(i.personagem.getName().compareTo(personagem.getName()) < 0){
-            i.dir = inserir(i.dir, personagem);
-        }else if(i.personagem.getName().compareTo(personagem.getName()) > 0){
-            i.esq = inserir(i.esq, personagem);
+            i = new No(x);
+        }else if(x < i.elemento){
+            i.esq = inserirArvorePrincipal(x, i.esq);
+        }else if(x > i.elemento){
+            i.dir = inserirArvorePrincipal(x, i.dir);
         }else{
-            throw new Exception("Erro ao realizar a inserção: Elemento já inserido na Árvore");
+            throw new Exception("Elemento já inserido!");
         }
 
         return i;
@@ -63,39 +94,51 @@ class ArvoreBinaria{
 
     private void caminharPre(No i){
         if(i != null){
-            System.out.println(i.personagem.getName() + " ");
+            System.out.println(i.elemento + " ");
             caminharPre(i.esq);
             caminharPre(i.dir);
         }
     }
 
-    public void pesquisar(String nome){
-        boolean resp;
-        resp = pesquisar(raiz, nome);
-
-        if(resp == true){
-            System.out.println("SIM");
-        }else{
-            System.out.println("NAO");
-        }
+    public void inserir(Personagem personagem) throws Exception{
+        inserir(raiz, personagem);
     }
 
-    private boolean pesquisar(No i, String nome){
-
-        boolean resp;
+    private void inserir(No i, Personagem personagem) throws Exception{
 
         if(i == null){
-            resp = false;
-        }else if(i.personagem.getName().equals(nome)){
-            resp = true;
-        }else if(i.personagem.getName().compareTo(nome) < 0){
-            resp = pesquisar(i.dir, nome);
-        }else{
-            resp = pesquisar(i.esq, nome);
+            throw new Exception("Posição de inserção não encontrada");
         }
 
-        return resp;
+        if((personagem.getYearOfBith() % 15) == i.elemento){
+            i.subArvore = inserirSubArvore(i.subArvore, personagem);
+        }else if((personagem.getYearOfBith() % 15) > i.elemento){
+            inserir(i.dir, personagem);
+        }else{
+            inserir(i.esq, personagem);
+        }
     }
+
+    private No2 inserirSubArvore(No2 i, Personagem personagem) throws Exception{
+        if(i == null){
+            i = new No2(personagem);
+        }else if(i.personagem.getName().compareTo(personagem.getName()) < 0){
+            i.dir = inserirSubArvore(i.dir, personagem);
+        }else if(i.personagem.getName().compareTo(personagem.getName()) > 0){
+            i.esq = inserirSubArvore(i.esq, personagem);
+        }else{
+            throw new Exception("Erro ao realizar a inserção: Elemento já inserido na Árvore");
+        }
+
+        return i;
+    }
+
+
+    /*public void pesquisar(String nome){
+
+    }
+
+    private boolean pesquisar(No i, )*/
 }
 
 
@@ -346,7 +389,7 @@ class Personagem {
 
 }
 
-public class questao1 {
+public class questao2 {
 
     public static void preencherArvore(ArvoreBinaria arvore, ArrayList<String> ids){
         String line;
