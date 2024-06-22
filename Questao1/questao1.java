@@ -69,35 +69,41 @@ class ArvoreBinaria{
         }
     }
 
-    public void pesquisar(String nome){
+    public void pesquisar(String nome, int comparacoes[]){
         boolean resp;
-        resp = pesquisar(raiz, nome);
+        System.out.print(nome + " => raiz");
+        resp = pesquisar(raiz, nome, comparacoes);
 
         if(resp == true){
-            System.out.println("SIM");
+            System.out.println(" SIM");
         }else{
-            System.out.println("NAO");
+            System.out.println(" NAO");
         }
     }
 
-    private boolean pesquisar(No i, String nome){
+    private boolean pesquisar(No i, String nome, int comparacoes[]){
 
         boolean resp;
 
         if(i == null){
+            comparacoes[0]++;
             resp = false;
         }else if(i.personagem.getName().equals(nome)){
+            comparacoes[0] += 2;
             resp = true;
         }else if(i.personagem.getName().compareTo(nome) < 0){
-            resp = pesquisar(i.dir, nome);
+            comparacoes[0] += 3;
+            System.out.print(" dir");
+            resp = pesquisar(i.dir, nome, comparacoes);
         }else{
-            resp = pesquisar(i.esq, nome);
+            comparacoes[0] += 3;
+            System.out.print(" esq");
+            resp = pesquisar(i.esq, nome, comparacoes);
         }
 
         return resp;
     }
 }
-
 
 class Lista {
     private List<String> Lista;
@@ -348,38 +354,28 @@ class Personagem {
 
 public class questao1 {
 
-    public static void preencherArvore(ArvoreBinaria arvore, ArrayList<String> ids){
+    public static void preencherVetor(Personagem[] personagens){
         String line;
         String[] atributos;
         Lista alternate_names;
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         Date dateOfBirth;
-        Personagem personagemAtual;
         try {
-            Scanner sc = new Scanner(new File("./characters.csv"));
+            Scanner sc = new Scanner(new File("/tmp/characters.csv"));
+            int i = 0;
             sc.nextLine();
             while(sc.hasNextLine()){
                 line = sc.nextLine();
                 atributos = Personagem.ler(line);
                 alternate_names = new Lista();
-
-                for(int j = 0; j < ids.size(); j++){
-                    if(ids.get(j).equals(atributos[0]) == true){
-                        try {
-                            dateOfBirth = formatter.parse(atributos[12]);
-
-                            //Inicialização do personagem com id correspondente ao digitado pelo usuário
-                            personagemAtual = new Personagem(atributos[0],atributos[1],alternate_names.parseStringToList(atributos[2]), atributos[3], atributos[4], atributos[5], atributos[6], atributos[7].equals("VERDADEIRO")? true: false, atributos[8].equals("VERDADEIRO")? true: false, atributos[9], 
-                            atributos[10].equals("VERDADEIRO")? true: false,dateOfBirth, Integer.parseInt(atributos[13]),atributos[14],atributos[15],atributos[16], atributos[17].equals("VERDADEIRO")? true: false);
-                            
-                            //inserçãod do personagem na arvore
-                            arvore.inserir(personagemAtual);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        j = ids.size() + 1;
-                    }
+                try {
+                    dateOfBirth = formatter.parse(atributos[12]);
+                    personagens[i] = new Personagem(atributos[0],atributos[1],alternate_names.parseStringToList(atributos[2]), atributos[3], atributos[4], atributos[5], atributos[6], atributos[7].equals("VERDADEIRO")? true: false, atributos[8].equals("VERDADEIRO")? true: false, atributos[9], 
+                    atributos[10].equals("VERDADEIRO")? true: false,dateOfBirth, Integer.parseInt(atributos[13]),atributos[14],atributos[15],atributos[16], atributos[17].equals("VERDADEIRO")? true: false);
+                    //System.out.println(personagens[i].getId());
+                    i++;
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
                 
             }
@@ -406,22 +402,31 @@ public class questao1 {
     public static void main(String[] args) {
         long inicio = System.nanoTime();
         Scanner sc = new Scanner(System.in);
-        ArrayList<String> ids = new ArrayList<>();
         String id, name;
-        int comparacoes = 0;
+        int comparacoes[] = {0};
+
+        Personagem[] personagens = new Personagem[405];
+        preencherVetor(personagens);
         ArvoreBinaria arvoreBinaria = new ArvoreBinaria();
         
         id = sc.nextLine();
         while(id.equals("FIM") != true){
-            ids.add(id);
+            for(int i = 0; i < 405; i++){
+                if(personagens[i].getId().equals(id)){
+                    try {
+                        arvoreBinaria.inserir(personagens[i]);
+                        i = 405;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
             id = sc.nextLine();
         }
         
-        preencherArvore(arvoreBinaria, ids);
-        
         name = sc.nextLine();
         while(name.equals("FIM") != true){
-            arvoreBinaria.pesquisar(name);
+            arvoreBinaria.pesquisar(name, comparacoes);
             name = sc.nextLine();
         }
 
@@ -429,7 +434,7 @@ public class questao1 {
 
         long tempoExecucao = fim - inicio;
 
-        //log(tempoExecucao, comparacoes);
+        log(tempoExecucao, comparacoes[0]);
         sc.close();
     }
 
